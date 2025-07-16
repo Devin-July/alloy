@@ -15,10 +15,9 @@
 
 package alloy.openapi
 
-import _root_.software.amazon.smithy.jsonschema.JsonSchemaConfig
 import _root_.software.amazon.smithy.jsonschema.JsonSchemaMapper
+import _root_.software.amazon.smithy.jsonschema.JsonSchemaMapperContext
 import _root_.software.amazon.smithy.jsonschema.Schema.Builder
-import _root_.software.amazon.smithy.model.shapes.Shape
 
 import scala.jdk.CollectionConverters._
 import alloy.DataExamplesTrait
@@ -28,10 +27,11 @@ import software.amazon.smithy.model.node.Node
 class DataExamplesMapper() extends JsonSchemaMapper {
 
   override def updateSchema(
-      shape: Shape,
-      schemaBuilder: Builder,
-      config: JsonSchemaConfig
-  ): Builder = if (shape.hasTrait(classOf[DataExamplesTrait])) {
+      context: JsonSchemaMapperContext,
+      schemaBuilder: Builder
+  ): Builder = {
+    val shape = context.getShape()
+    if (shape.hasTrait(classOf[DataExamplesTrait])) {
     shape
       .getTrait(classOf[DataExamplesTrait])
       .get
@@ -52,5 +52,6 @@ class DataExamplesMapper() extends JsonSchemaMapper {
         schemaBuilder.putExtension("example", res)
       case _ => schemaBuilder
     }
-  } else schemaBuilder
+    } else schemaBuilder
+  }
 }

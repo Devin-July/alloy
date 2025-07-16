@@ -15,10 +15,9 @@
 
 package alloy.openapi
 
-import _root_.software.amazon.smithy.jsonschema.JsonSchemaConfig
 import _root_.software.amazon.smithy.jsonschema.JsonSchemaMapper
+import _root_.software.amazon.smithy.jsonschema.JsonSchemaMapperContext
 import _root_.software.amazon.smithy.jsonschema.Schema.Builder
-import _root_.software.amazon.smithy.model.shapes.Shape
 import alloy.UntaggedUnionTrait
 
 import scala.jdk.CollectionConverters._
@@ -27,10 +26,11 @@ class UntaggedUnions() extends JsonSchemaMapper {
   private final val COMPONENTS = "components"
 
   override def updateSchema(
-      shape: Shape,
-      schemaBuilder: Builder,
-      config: JsonSchemaConfig
-  ): Builder = if (shape.hasTrait(classOf[UntaggedUnionTrait])) {
+      context: JsonSchemaMapperContext,
+      schemaBuilder: Builder
+  ): Builder = {
+    val shape = context.getShape()
+    if (shape.hasTrait(classOf[UntaggedUnionTrait])) {
     val unionSchema = schemaBuilder.build()
 
     val alternatives = unionSchema.getOneOf().asScala
@@ -51,6 +51,7 @@ class UntaggedUnions() extends JsonSchemaMapper {
           .build()
       } else untaggedAlt
     }
-    schemaBuilder.oneOf(untaggedAlts.asJava)
-  } else schemaBuilder
+      schemaBuilder.oneOf(untaggedAlts.asJava)
+    } else schemaBuilder
+  }
 }
