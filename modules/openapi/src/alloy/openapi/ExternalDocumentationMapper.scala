@@ -15,10 +15,9 @@
 
 package alloy.openapi
 
-import _root_.software.amazon.smithy.jsonschema.JsonSchemaConfig
 import _root_.software.amazon.smithy.jsonschema.JsonSchemaMapper
+import _root_.software.amazon.smithy.jsonschema.JsonSchemaMapperContext
 import _root_.software.amazon.smithy.jsonschema.Schema.Builder
-import _root_.software.amazon.smithy.model.shapes.Shape
 
 import scala.jdk.CollectionConverters._
 import software.amazon.smithy.model.traits.ExternalDocumentationTrait
@@ -90,10 +89,11 @@ class ExternalDocumentationMapperOpenApi() extends OpenApiMapper {
 class ExternalDocumentationMapperJsonSchema() extends JsonSchemaMapper {
 
   override def updateSchema(
-      shape: Shape,
-      schemaBuilder: Builder,
-      config: JsonSchemaConfig
-  ): Builder = if (shape.hasTrait(classOf[ExternalDocumentationTrait])) {
+      context: JsonSchemaMapperContext,
+      schemaBuilder: Builder
+  ): Builder = {
+    val shape = context.getShape()
+    if (shape.hasTrait(classOf[ExternalDocumentationTrait])) {
     shape
       .expectTrait(classOf[ExternalDocumentationTrait])
       .getUrls()
@@ -108,5 +108,6 @@ class ExternalDocumentationMapperJsonSchema() extends JsonSchemaMapper {
         schemaBuilder.putExtension("externalDocs", res)
       case _ => schemaBuilder
     }
-  } else schemaBuilder
+    } else schemaBuilder
+  }
 }

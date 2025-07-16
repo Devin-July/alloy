@@ -15,10 +15,9 @@
 
 package alloy.openapi
 
-import _root_.software.amazon.smithy.jsonschema.JsonSchemaConfig
 import _root_.software.amazon.smithy.jsonschema.JsonSchemaMapper
+import _root_.software.amazon.smithy.jsonschema.JsonSchemaMapperContext
 import _root_.software.amazon.smithy.jsonschema.Schema.Builder
-import _root_.software.amazon.smithy.model.shapes.Shape
 import alloy.DiscriminatedUnionTrait
 
 import software.amazon.smithy.model.node.Node
@@ -28,15 +27,17 @@ class DiscriminatedUnionShapeId() extends JsonSchemaMapper {
   import DiscriminatedUnionShapeId._
 
   override def updateSchema(
-      shape: Shape,
-      schemaBuilder: Builder,
-      config: JsonSchemaConfig
-  ): Builder = if (shape.hasTrait(classOf[DiscriminatedUnionTrait])) {
-    schemaBuilder.putExtension(
-      SHAPE_ID_KEY,
-      Node.from(shape.toShapeId.toString)
-    )
-  } else schemaBuilder
+      context: JsonSchemaMapperContext,
+      schemaBuilder: Builder
+  ): Builder = {
+    val shape = context.getShape()
+    if (shape.hasTrait(classOf[DiscriminatedUnionTrait])) {
+      schemaBuilder.putExtension(
+        SHAPE_ID_KEY,
+        Node.from(shape.toShapeId.toString)
+      )
+    } else schemaBuilder
+  }
 }
 
 object DiscriminatedUnionShapeId {
